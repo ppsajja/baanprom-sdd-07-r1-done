@@ -136,3 +136,7 @@ pytest: 19 passed, 1 skipped | vitest: 14 passed (6 ไฟล์)
 ## รอบ CR-10 (3 พ.ย. 2569)
 
 ผลของ AC ที่ CR-10 และ CR-02 เพิ่มหรือแก้ อยู่ในตารางรวมที่ specs/000-shared/ac-results.md ส่วน "รอบ CR-10 และ CR-02" AC อื่นของ feature นี้ผลเท่ารอบก่อน และ test ไม่ถูกแตะ ผลระหว่างตรวจรับ R1 อยู่ใน docs/acceptance/acceptance-record-r1.md
+
+## รอบตรวจรับ R1 รอบสอง (16 พ.ย. 2569)
+
+ผลของ DEF-01 (UI-07-02) และผลทดสอบโหลดเต็มรูปของ AC-07-08 อยู่ในตารางรวมที่ specs/000-shared/ac-results.md ส่วน "รอบตรวจรับ R1 รอบสอง"

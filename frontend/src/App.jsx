@@ -45,7 +45,15 @@ export default function App({ api = realApi, jobStatusApi = realJobStatusApi, ca
         <ConfirmBooking key={held.slot.slot_id} api={api} customerId={customerId} addressId={addressId} held={held}
           onConfirmed={setJob}
           onBack={() => setHeld(null)}
-          onPickAlternative={(a) => setHeld({ ...held, slot: a, holdExpiresAt: null, technician: { technician_id: a.technician_id, name: a.technician_name } })} />
+          onPickAlternative={async (a) => {
+            // DEF-01 (ตรวจรับ R1 EV-049, GAP-36): เดิมตั้ง holdExpiresAt เป็น null และไม่ล็อกช่วงใหม่ หน้ายืนยันจึงไม่บอกเวลาที่ต้องชำระให้เสร็จ
+            // REQ-FN-041: ล็อกช่วงที่เลือกตั้งแต่ขั้น 3 เวลาสิ้นสุดมาจากระบบ (D-00-05) ล็อกไม่ได้ แสดงข้อความและห้ามกดยืนยัน
+            const technician = { technician_id: a.technician_id, name: a.technician_name }
+            const hold = await api.holdSlot({ slotId: a.slot_id, customerId })
+            if (hold.status === 200) return setHeld({ ...held, slot: a, technician, holdExpiresAt: hold.body.hold_expires_at, holdError: null })
+            const holdError = hold.body?.reason === 'hold_limit' ? hold.body.message : 'ช่วงเวลานี้เพิ่งถูกจองไป'
+            setHeld({ ...held, slot: a, technician, holdExpiresAt: null, holdError })
+          }} />
       )}
       {view === 'book' && job && <BookingResult job={job} technicianName={held?.technician?.name} onRestart={() => { setHeld(null); setJob(null) }} />}
 

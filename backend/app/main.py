@@ -7,6 +7,8 @@ CR-07 (Constraint กลางรุ่น 1.1 ส่วน 6):
 - OWASP API9:2023 บัญชี endpoint อยู่ใน docs/srs/operations.md ส่วน "บัญชี endpoint" POST /jobs/{id}/cancel ถูกปิด
   (router เดิมใน app/refund/router.py ถูกลบ การยกเลิกโดยลูกค้ามีทางเดียวคือ customer-cancel ของ 004)"""
 import asyncio
+import logging
+import sys
 import time
 from contextlib import asynccontextmanager, suppress
 from datetime import datetime
@@ -51,7 +53,23 @@ async def lifespan(app: FastAPI):
             await task
 
 
+def configure_logging() -> None:
+    """DEF-02 (ตรวจรับ R1 OAT-6, GAP-37) รองรับ REQ-OP-005 บรรทัดที่ 3: log ของแอป (logger ชื่อ app) ออก stdout บรรทัดละ JSON
+    ระดับ INFO ข้อความเป็น JSON จาก privacy.log_event อยู่แล้ว จึงใช้รูปแบบ %(message)s ไม่เพิ่มอะไร เรียกซ้ำได้ไม่ซ้อนตัวจัดการ
+    ตัวจัดการผูกกับ sys.stdout ตอนเรียก ระบบจริงเก็บ stdout ของหลังบ้าน (journald หรือบริการ log ที่ Ops lead เลือก)"""
+    logger = logging.getLogger("app")
+    logger.setLevel(logging.INFO)
+    for h in list(logger.handlers):
+        if getattr(h, "_baanprom", False):
+            logger.removeHandler(h)
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter("%(message)s"))
+    handler._baanprom = True
+    logger.addHandler(handler)
+
+
 def create_app() -> FastAPI:
+    configure_logging()
     production = config.app_env() == "production"
     app = FastAPI(title="บ้านพร้อม R1 - UC-07 จองงาน, UC-09 สถานะงาน, UC-08 ยกเลิกและคืนเงิน, UC-14 ผู้ช่วย", lifespan=lifespan,
                   # รองรับ REQ-SEC-012 (AC-00-06): หน้าเอกสารที่ FastAPI เปิดให้เอง ปิดในระบบจริง

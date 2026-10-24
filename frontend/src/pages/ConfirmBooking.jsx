@@ -36,7 +36,9 @@ export default function ConfirmBooking({ api, customerId, addressId, held, onCon
     setState({ kind: 'error' })
   }
 
+  // DEF-01: ล็อกช่วงใกล้เคียงไม่สำเร็จ (held.holdError) แสดงข้อความและห้ามยืนยัน
   const blocked = state.kind === 'taken' || state.kind === 'payment_failed'
+  const holdFailed = Boolean(held.holdError)
 
   return (
     <section className="rounded-xl bg-white p-6 shadow-sm">
@@ -54,6 +56,10 @@ export default function ConfirmBooking({ api, customerId, addressId, held, onCon
             {held.estimateNote && <span className="block text-xs text-slate-500">{held.estimateNote}</span>}</dd>
         </>)}
       </dl>
+
+      {holdFailed && (
+        <p role="alert" className="mt-3 rounded-lg border border-orange-300 bg-orange-50 p-3 text-sm text-orange-800">{held.holdError}</p>
+      )}
 
       {!blocked && held.holdExpiresAt && state.kind !== 'payment_pending' && (
         <p className="mt-3 rounded-lg border border-teal-200 bg-teal-50 p-3 text-sm text-teal-800">
@@ -104,7 +110,7 @@ export default function ConfirmBooking({ api, customerId, addressId, held, onCon
       )}
 
       {!blocked && (
-        <button type="button" onClick={confirm} disabled={state.kind === 'loading' || !hasDeposit}
+        <button type="button" onClick={confirm} disabled={state.kind === 'loading' || !hasDeposit || holdFailed}
           className="mt-5 w-full rounded-lg bg-teal-700 px-4 py-3 font-medium text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-slate-300">
           {state.kind === 'loading' ? 'กำลังชำระมัดจำ...' : hasDeposit ? `ยืนยันและชำระมัดจำ ${deposit} บาท` : 'ยืนยันและชำระมัดจำ'}
         </button>
