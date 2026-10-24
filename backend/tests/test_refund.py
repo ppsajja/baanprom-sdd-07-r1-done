@@ -76,14 +76,14 @@ def test_AC_07_10_refund_R6_not_allowed(client, db, seed):
     db.refresh(job); assert job.status == "in_progress"
 
 
-# รองรับ AC-07-10 แถว R3: รอ Q-14 ยังตัดสินยอดคืนไม่ได้ จึงข้าม แต่พฤติกรรมชั่วคราวต้องปฏิเสธ
-@pytest.mark.skip(reason="รอ Q-14 (BR-01 R3) เจ้าของยังไม่ตอบว่าคืนเท่าไร ดู spec ข้อ 9 และ D-07-04")
-def test_AC_07_10_refund_R3():
-    pass
-
-
-def test_AC_07_10_refund_R3_temporary_behaviour(client, db, seed):
+# รองรับ AC-07-10 แถว R3: CR-10 (Q-14 ปิดใน EV-048) แถวนี้ไม่ข้ามแล้ว ยอดคืน = มัดจำ 350 หักค่าเดินทาง 100 = 250
+# test เดิมของพฤติกรรมชั่วคราว (test_AC_07_10_refund_R3_temporary_behaviour) ถูกลบตามตาราง "test เดิมที่เปลี่ยน" ของ CR-10
+def test_AC_07_10_refund_R3(client, db, seed):
+    # Given งานมัดจำ 350 บาท สถานะ "ช่างกำลังเดินทาง" และเวลานัดอีก 1 ชั่วโมง
     job = make_confirmed_job(client, db, seed)
     set_status(db, job, "en_route", NOW); db.commit()
+    # When ลูกค้ายกเลิกงาน
     r = cancel(client, job.id, "customer", job.scheduled_start - timedelta(hours=1))
-    assert r.status_code == 409 and r.json()["rule"] == "R3" and "call center" in r.json()["message"]
+    # Then ผลคือ "ยกเลิก" และยอดคืน 250 บาท ตามแถว R3
+    assert r.status_code == 200, r.text
+    assert r.json()["rule"] == "R3" and r.json()["status"] == "cancelled" and r.json()["refund_amount"] == 250

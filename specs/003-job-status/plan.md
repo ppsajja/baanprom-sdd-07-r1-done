@@ -172,3 +172,10 @@ Constraint กลางจาก specs/000-shared/constraints.md รุ่น 1.
 | AC-09-12 | test_AC_09_12_status_change_under_load_scaled | 10 คำขอพร้อมกัน (ย่อจาก 50) |
 | AC-09-13 | test_AC_09_13_if02_down_status_saved_message_resent_once, test_AC_09_13_if02_down_beyond_retries_gives_up_after_6 | FakeNotifier(mode=down) เดินนาฬิกาทีละ 1 นาที |
 | AC-09-14 | test_AC_09_14_denied_status_change_logged_without_leaking_existence | 403 สองกรณี security_events 2 แถว |
+
+## 10. ปรับตาม CR-10 (plan v3, 3 พ.ย. 2569)
+
+ข้อนี้เพิ่มใหม่ ข้อ 1 ถึง 9 ไม่แก้
+- ข้อความถึงลูกค้าเมื่อเปลี่ยนเป็น "เสร็จสิ้น" ต่อท้ายด้วยช่องทางแจ้งปัญหา เลขโทรจาก config.call_center_tel() และจำนวนวันจาก JOB_ISSUE_REPORT_DAYS (D-09-04) แก้ที่ jobstatus/service.py change_status จุดเดียว
+- ไม่มีลูกศรใหม่ ไม่มีปุ่มใหม่ (Q-31 ปิดว่าไม่มีขั้นลูกค้ายืนยัน) BR-04 ไม่เปลี่ยน
+- test: test_AC_09_15_done_without_customer_confirm_and_message_tells_how_to_report ใน backend/tests/test_job_status_cr10.py

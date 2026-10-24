@@ -74,3 +74,13 @@ REQ ที่เกี่ยวกับ UC-08 ทั้งหมด 7 ข้อ
 | REQ-SEC-010 (MU-01) | MU-01, TH-02, Q-47 | ส่วน 6 (ไฟล์กลาง) | AC-08-10, AC-08-01 | test_AC_08_10, test_AC_08_01_other_customer, AC-08-10.test.jsx | T-10 | cancel/router.py, ops/audit.py, CancelBooking.jsx | ครบ | รับ |
 
 ข้อค้นพบเดิม F-12 (endpoint ยกเลิกของ 002 คืนเงินไม่จริง) ปิดไปแล้วด้วย CR-06 และ endpoint นั้นถูกปิดทั้งตัวด้วย CR-07 ข้อ ข4
+
+## แถวที่เพิ่มตาม CR-10 (3 พ.ย. 2569)
+
+| REQ | ที่มา (EV) | AC | test | task | โค้ด / หน้าจอ | สถานะ | ทีมตัดสิน |
+|---|---|---|---|---|---|---|---|
+| REQ-IF-010 (gateway ปฏิเสธ) | EV-048 (Q-34) | AC-08-11 | test_AC_08_11, AC-08-11.test.jsx | T-12 | refund/service.py, cancel/router.py, ops/router.py (GET /ops/refunds/follow-up), UI-08-02 | ครบ F-13 ปิด | รับ |
+| REQ-BR-001 R3, REQ-FN-054, REQ-FN-055 | EV-048 (Q-14) | AC-08-12 | test_AC_08_12, AC-08-12.test.jsx | T-13 | refund/service.py, cancel/router.py (note), UI-08-01 | ครบ | รับ |
+| REQ-FN-054 หน้าจอ (Q-35) | EV-048 | UI-08-01, UI-08-02 รายการต้องตรง | UI-08-02.test.jsx | T-13 | CancelBooking.jsx, CancelResult.jsx | ครบ | รับ |
+
+ข้อค้นพบ: F-13 ปิด (AC-08-11) F-14 (เลข UC ของ waitlist) ยังเปิด ย้ายไป R2 กับ Q-33

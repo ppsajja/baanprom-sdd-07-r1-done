@@ -72,7 +72,7 @@
      ตกลงกับ SH-01 วันที่ 18 ต.ค. 2569 (EV-044) เข้าสเปกผ่าน CR-06
      ข้อมูลทุกตัวเป็นตัวอย่าง ดูว่าอะไร "ต้องตรง" ได้ที่ส่วน 12 หน้าจอ (UI) ใน spec.md
      data-req บอกว่าส่วนนั้นรองรับ requirement ข้อไหน กล่องเส้นประคือเรื่องที่ยังเป็น Q-xx ห้ามสร้าง -->
-<p class="note">MOCKUP UI-08-02 ผลการยกเลิก (UC-08 ขั้น 5 ถึง 6) | รองรับ REQ-FN-054, REQ-FN-055, REQ-BR-001 | 1 สถานะ | ข้อมูลทั้งหมดเป็นตัวอย่าง</p>
+<p class="note">MOCKUP UI-08-02 ผลการยกเลิก (UC-08 ขั้น 5 ถึง 6) | รองรับ REQ-FN-054, REQ-FN-055, REQ-BR-001 | 2 สถานะ | ข้อมูลทั้งหมดเป็นตัวอย่าง | รุ่น CR-10 บรรทัดช่องทางคืนเงิน (Q-35) และสถานะ gateway ปฏิเสธคำขอคืนเงิน (Q-34)</p>
 <div class="row">
   <section class="state">
     <h2>สถานะ: ยกเลิกสำเร็จ (AC-08-02, AC-08-03, AC-08-05)</h2>
@@ -85,7 +85,23 @@
         <div class="strong" data-req="REQ-DAT-002"><span>สถานะ</span><span>ยกเลิก</span></div>
         <div data-req="REQ-BR-001"><span>เงินคืน</span><span>180 บาท</span></div>
       </div>
-      <div class="todo">รอ Q-35: ช่องทางและระยะเวลาที่เงินคืนเข้า</div>
+      <p class="muted center">คืนผ่านช่องทางที่ชำระมัดจำ ระยะเวลาที่เงินเข้าบัญชีขึ้นกับธนาคารผู้ออกบัตร</p>
+      <p class="muted center" data-req="REQ-FN-055">ระบบจะแจ้งคุณและช่างภายใน 60 วินาที</p>
+      <span class="btn ghost">กลับหน้าหลัก</span>
+    </div>
+  </section>
+  <section class="state">
+    <h2>สถานะ 2: gateway ปฏิเสธคำขอคืนเงิน (AC-08-11)</h2>
+    <div class="phone">
+      <div class="brand">บ้านพร้อม</div><div class="tagline">จองช่างซ่อมบ้านที่ว่างจริง ไม่ต้องโทรถาม</div>
+      <div class="nav"><span class="">จองงาน</span><span class="">สถานะงาน</span><span class="on">ยกเลิกการจอง</span><span class="">งานของช่าง</span></div>
+      <p class="ok">ยกเลิกแล้ว</p>
+      <p class="jobno" data-req="REQ-FN-054">งาน #1025</p>
+      <div class="card">
+        <div class="strong" data-req="REQ-DAT-002"><span>สถานะ</span><span>ยกเลิก</span></div>
+        <div data-req="REQ-BR-001"><span>เงินคืน</span><span>350 บาท</span></div>
+      </div>
+      <div class="alert amber" data-req="REQ-IF-010">การคืนเงินต้องตรวจสอบเพิ่ม เจ้าหน้าที่จะติดต่อคุณภายใน 1 วันทำการ</div>
       <p class="muted center" data-req="REQ-FN-055">ระบบจะแจ้งคุณและช่างภายใน 60 วินาที</p>
       <span class="btn ghost">กลับหน้าหลัก</span>
     </div>

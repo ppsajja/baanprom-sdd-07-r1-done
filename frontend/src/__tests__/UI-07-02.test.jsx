@@ -46,14 +46,18 @@ test('UI-07-02 เมื่อช่วงเวลาถูกจองไป�
   expect(screen.queryByRole('button', { name: /ยืนยันและชำระมัดจำ/ })).toBeNull()
 })
 
-test('UI-07-02 เงื่อนไขการยกเลิก 3 บรรทัดตรงตาม mockup (BR-01 R1, R2 และพฤติกรรมชั่วคราวของ R3)', () => {
+// CR-10 (Q-14): บรรทัดที่ 3 เปลี่ยนตาม BR-01 R3 รุ่น 1.1 (ตาราง "test เดิมที่เปลี่ยน" ของ CR-10)
+test('UI-07-02 เงื่อนไขการยกเลิก 3 บรรทัดตรงตาม mockup (BR-01 R1, R2 และ R3 รุ่น 1.1)', () => {
   show()
   expect(screen.getByText('ยกเลิกก่อนนัด 24 ชั่วโมงขึ้นไป คืนมัดจำเต็มจำนวน')).toBeInTheDocument()
   expect(screen.getByText('ยกเลิกก่อนนัดน้อยกว่า 24 ชั่วโมง คืนมัดจำครึ่งหนึ่ง')).toBeInTheDocument()
-  expect(screen.getByText('เมื่อช่างออกเดินทางแล้ว กรุณาติดต่อ call center')).toBeInTheDocument()
+  expect(screen.getByText('เมื่อช่างออกเดินทางแล้ว หักค่าเดินทางของช่าง คืนส่วนที่เหลือ')).toBeInTheDocument()
 })
 
-test('UI-07-02 ไม่มีราคาประเมินบนหน้าจอ เพราะยังรอ Q-26', () => {
-  show()
-  expect(screen.queryByText(/ราคาประเมิน/)).toBeNull()
+// CR-10 (Q-26 ปิด): เดิมตรวจว่าไม่มีราคาประเมิน ตอนนี้ตรวจว่าแสดงราคาประเมินและข้อความกำกับที่ระบบส่งมา (ตาราง "test เดิมที่เปลี่ยน" ของ CR-10)
+test('UI-07-02 แสดงราคาประเมินและข้อความกำกับจากระบบ (REQ-FN-057)', () => {
+  show({ ...held, estimateAmount: 700, estimateNote: 'ค่าบริการเบื้องต้น ยังไม่รวมค่าอะไหล่ ช่างแจ้งราคาจริงก่อนเริ่มงาน' })
+  expect(screen.getByText('ราคาประเมิน')).toBeInTheDocument()
+  expect(screen.getByTestId('estimate')).toHaveTextContent('700 บาท')
+  expect(screen.getByTestId('estimate')).toHaveTextContent('ยังไม่รวมค่าอะไหล่')
 })

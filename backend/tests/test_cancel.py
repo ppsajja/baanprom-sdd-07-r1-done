@@ -1,5 +1,6 @@
 """AC-08-01 ถึง AC-08-06 จาก cancel-refund.feature (specs/004-cancel-refund, CR-06)
-UC-08 ลูกค้ายกเลิกการจองและรับเงินคืน ใช้ตาราง BR-01 ตัวเดียวกับ AC-07-10 (R3 ยังรอ Q-14 เหมือนเดิม)"""
+UC-08 ลูกค้ายกเลิกการจองและรับเงินคืน ใช้ตาราง BR-01 ตัวเดียวกับ AC-07-10 (R3 ยังรอ Q-14 เหมือนเดิม)
+CR-10: Q-14 ปิดแล้ว แถว R3 ออกจาก AC-08-06 ไปอยู่ที่ AC-08-12 ใน test_cancel_cr10.py"""
 from datetime import timedelta
 
 import pytest
@@ -101,7 +102,6 @@ def test_AC_08_05_notify_customer_and_technician_within_60s(client, db, seed):
 
 # รองรับ AC-08-06 (REQ-BR-001 R3 พฤติกรรมชั่วคราว Q-14, และ R6): ยกเลิกไม่ได้ ระบบตอบข้อความให้หน้าจอแสดง
 @pytest.mark.parametrize("status,rule,text", [
-    ("en_route", "R3", "ติดต่อ call center"),
     ("in_progress", "R6", "ยกเลิกไม่ได้"),
 ])
 def test_AC_08_06_not_cancellable_returns_message(client, db, seed, gateway, status, rule, text):

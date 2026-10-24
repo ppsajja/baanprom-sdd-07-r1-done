@@ -5,6 +5,8 @@
 // รองรับ AC-07-06: ได้ 402 แสดง "ชำระมัดจำไม่สำเร็จ"
 // CR-07 รองรับ AC-07-12 (REQ-QA-010): ได้ 202 payment_pending แสดงข้อความที่ระบบส่งมา และให้กดยืนยันอีกครั้งได้
 // (ระบบลองใหม่ด้วย reference เดิม ไม่ตัดเงินซ้ำ AC-07-13) เวลาสิ้นสุดของล็อกมาจากคำตอบ ไม่พิมพ์ตัวเลขเอง (D-00-05)
+// CR-10 รองรับ REQ-FN-057 (AC-07-19, Q-26): แสดงราคาประเมินและข้อความกำกับจากระบบ (held.estimateAmount, held.estimateNote)
+// CR-10 (Q-14): บรรทัดที่ 3 ของเงื่อนไขการยกเลิกเปลี่ยนตาม BR-01 R3 รุ่น 1.1 ไม่พิมพ์ยอดเงิน (ยอดอยู่หน้ายกเลิก UI-08-01)
 import { useState } from 'react'
 import Steps from '../components/Steps.jsx'
 
@@ -46,6 +48,11 @@ export default function ConfirmBooking({ api, customerId, addressId, held, onCon
         <dt className="text-slate-500">ประเภทงาน</dt><dd className="text-slate-800">{held.category}</dd>
         <dt className="text-slate-500">มัดจำ</dt>
         <dd className="font-semibold text-slate-900" data-testid="deposit">{hasDeposit ? `${deposit} บาท` : 'ยังไม่ทราบยอดมัดจำ'}</dd>
+        {typeof held.estimateAmount === 'number' && (<>
+          <dt className="text-slate-500">ราคาประเมิน</dt>
+          <dd className="text-slate-800" data-testid="estimate">{held.estimateAmount} บาท
+            {held.estimateNote && <span className="block text-xs text-slate-500">{held.estimateNote}</span>}</dd>
+        </>)}
       </dl>
 
       {!blocked && held.holdExpiresAt && state.kind !== 'payment_pending' && (
@@ -60,7 +67,7 @@ export default function ConfirmBooking({ api, customerId, addressId, held, onCon
           <ul className="list-disc pl-5">
             <li>ยกเลิกก่อนนัด 24 ชั่วโมงขึ้นไป คืนมัดจำเต็มจำนวน</li>
             <li>ยกเลิกก่อนนัดน้อยกว่า 24 ชั่วโมง คืนมัดจำครึ่งหนึ่ง</li>
-            <li>เมื่อช่างออกเดินทางแล้ว กรุณาติดต่อ call center</li>
+            <li>เมื่อช่างออกเดินทางแล้ว หักค่าเดินทางของช่าง คืนส่วนที่เหลือ</li>
           </ul>
         </div>
       )}

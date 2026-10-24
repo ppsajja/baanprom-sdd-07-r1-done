@@ -129,13 +129,14 @@ tag: B1 | date: 2569-09-06 | approved-by: SH-01 (เจ้าของ), กล�
 | CR | เรื่อง | สถานะ |
 |---|---|---|
 | CR-01 | AC-07-04 นิยาม "ใกล้เคียง" เป็นไม่เกิน 3 ชั่วโมง | Approved 4 ต.ค. 2569 (RE lead: แก้ถ้อยคำให้วัดได้ ไม่เปลี่ยนความหมาย) |
-| CR-02 | ทำให้ REQ-QA-003 วัดได้ด้วย QAS | Proposed รอ SH-01 |
+| CR-02 | ทำให้ REQ-QA-003 วัดได้ด้วย QAS | Approved 3 พ.ย. 2569 (SH-01 ในประชุม EV-048 Q-24 ปิด) ทำครบแล้ว เข้า B5 สถานะเดิม: Proposed รอ SH-01 ตั้งแต่ B1 |
 | CR-03 | เอาหน้าจอจาก mockup เข้าสเปก เพิ่ม REQ-BR-002 ใน spec และ AC-07-11 | Approved 11 ต.ค. 2569 (SH-01) ทำครบแล้ว เข้า B2 |
 | CR-04 | ย้าย Constraint ที่ใช้ทุก feature ไปไฟล์กลาง และบันทึก D-00-01 ถึง D-00-05 | Approved 11 ต.ค. 2569 (RE lead, Dev lead) ทำครบแล้ว เข้า B2 |
 | CR-05 | นำ SPEC-JOB-STATUS (UC-09) เข้า B2 เพิ่ม REQ-FN-050 ถึง 053 AC-09-01 ถึง 10 UI-09-01, 02 และปิด F-08 (AC ของ REQ-DAT-002) | Approved 18 ต.ค. 2569 (SH-01) ทำครบแล้ว เข้า B2 (ปรับปรุง) เงื่อนไข Q-31 ก่อนเปิดใช้จริง |
 | CR-06 | นำ SPEC-CANCEL (UC-08) เข้า B2 เพิ่ม REQ-FN-054, 055, REQ-IF-010, REQ-DAT-003 AC-08-01 ถึง 06 UI-08-01, 02 และให้การยกเลิกทุกทางคืนเงินผ่าน gateway (ปิด F-12) | Approved 18 ต.ค. 2569 (SH-01, Dev lead) ทำครบแล้ว เข้า B2 (ปรับปรุง) เงื่อนไข Q-34 ก่อนเปิดใช้จริง |
 | CR-07 | เพิ่มข้อกำหนดข้ามทุก feature 9 ข้อ (OP, QA, SEC, PRV, CMP) เป็น Constraint กลางรุ่น 1.1 จากการทบทวนเหตุการณ์รอบ Failure Day พร้อม MU-01, STRIDE TH-01 ถึง 11 และร่าง runbook (docs/srs/operations.md) ประชุมทบทวนเพิ่ม REQ-SEC-012 แก้ AC-09-06 และปิด POST /jobs/{id}/cancel | Approved 24 ต.ค. 2569 (SH-01, Ops lead, SH-05, Dev lead) ทำครบแล้ว เข้า B3 (specs/002-booking/changes/CR-07.md) สถานะเดิมในรอบ Failure Day: Proposed ไม่มีโค้ดหรือ test เปลี่ยน |
 | CR-09 | นำผู้ช่วยตอบคำถามและเลื่อนนัด (UC-14, specs/005-ai-assistant) เข้าสู่การพิจารณา เพิ่ม REQ-DAT-010, REQ-AI-005 ถึง 013, 020 ถึง 022, REQ-FN-056, BR-06, AC-14-01 ถึง 16, UI-14-01 และไฟล์กลางส่วน 7 "AI" (รุ่น 1.2) ข้ามเลข CR-08 เพราะหน้าบทเรียน RE in One Line ใช้ CR-08 เป็นตัวอย่างสมมติ | Approved 31 ต.ค. 2569 (SH-01, SH-05, Ops lead, Dev lead EV-047) พร้อมการแก้ ค1 ถึง ค3 ทำครบแล้ว เข้า B4 (specs/005-ai-assistant/changes/CR-09.md) สถานะเดิมในบทเรียน Data, AI และ Agent: Proposed คำถามเปิด Q-55 ถึง Q-63 |
+| CR-10 | ตอบคำถามที่เป็นเงื่อนไขก่อนเปิด R1 (Q-14, Q-18, Q-19, Q-23, Q-24, Q-26, Q-27, Q-31, Q-34, Q-35) แก้ BR-01 R3 REQ-BR-002 REQ-IF-010 เพิ่ม REQ-FN-057 AC-07-19, AC-08-11, AC-08-12, AC-09-15 eval set 1.1 และช่องทางถึงคนเวร (GAP-28) | Approved 3 พ.ย. 2569 (SH-01, Dev lead, Ops lead, Finance, SH-05 EV-048) ทำครบแล้ว เข้า B5 พร้อมการรับ R1 (specs/000-shared/changes/CR-10.md) |
 
 ## บันทึกตอนประกาศ B1 (ยกมาจาก repo baanprom-sdd-02-build)
 

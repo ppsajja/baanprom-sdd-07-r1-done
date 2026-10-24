@@ -23,17 +23,33 @@ class Page:
 
 
 class Pager:
-    """ช่องทางถึงคนเวร ระบบจริงส่ง SMS หรือแอปเวร (Ops lead เลือก) ตอนนี้เขียน log อย่างเดียว"""
-    def send(self, page: Page) -> None:
+    """ช่องทางถึงคนเวร CR-10 (GAP-28 ปิดใน EV-048): Ops lead เลือกบริการแจ้งเตือนเวรที่รับ webhook
+    ถ้าตั้ง PAGER_WEBHOOK_URL ส่ง HTTPS POST แบบ JSON {kind, text, at} ถ้าไม่ตั้ง เขียน log อย่างเดียวเหมือนรุ่น B4
+    ข้อความมีแค่ชนิดเหตุและตัวเลข ไม่มีข้อมูลลูกค้า (REQ-OP-005 บรรทัดที่ 3) คืน True เมื่อส่งถึง"""
+    def send(self, page: Page) -> bool:
         log_event(log, "page_on_call", reason=page.kind)
+        url = config.pager_webhook_url()
+        if not url:
+            return True
+        import httpx
+        try:
+            r = httpx.post(url, json={"kind": page.kind, "text": page.text, "at": page.at.isoformat()},
+                           timeout=config.PAGER_TIMEOUT_SECONDS)
+            r.raise_for_status()
+            return True
+        except Exception:
+            # ส่งไม่ถึง: บันทึกแล้วให้ evaluate รอบถัดไป (1 นาที) ส่งใหม่ ยังอยู่ในกรอบ 2 นาทีถ้ารอบถัดไปถึง
+            log_event(log, "page_failed", reason=page.kind)
+            return False
 
 
 @dataclass
 class FakePager(Pager):
     sent: list[Page] = field(default_factory=list)
 
-    def send(self, page: Page) -> None:
+    def send(self, page: Page) -> bool:
         self.sent.append(page)
+        return True
 
 
 _pager: Pager = Pager()
@@ -100,5 +116,7 @@ def evaluate(db, m: Metrics, now: datetime, pager: Pager | None = None) -> list[
                                          f"{config.DENIAL_ALERT_WINDOW_MINUTES} นาที", now))
             state.denial_alerted.add((role, actor_id))
     for p in pages:
-        pager.send(p)
+        delivered = pager.send(p)
+        if delivered is False and p.kind == "failure_rate":
+            state.failure_alert_open = False  # CR-10: ส่งไม่ถึง ส่งใหม่ในนาทีถัดไป
     return pages

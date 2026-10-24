@@ -31,3 +31,14 @@ def ready(db: Session = Depends(get_db)):
 @router.get("/metrics", dependencies=[Depends(require_ops)])
 def read_metrics():
     return metrics.as_dicts()
+
+
+@router.get("/ops/refunds/follow-up", dependencies=[Depends(require_ops)])
+def refunds_follow_up(db: Session = Depends(get_db)):
+    # CR-10 (Q-34 และ Q-41, AC-08-11): รายการคืนเงินที่ Finance ต้องปิดเองภายใน 1 วันทำการ
+    # gateway ปฏิเสธ (declined) หรือไม่ทราบผล (unknown) ระบบไม่ส่งซ้ำเอง ไม่มีข้อมูลส่วนบุคคลในคำตอบ
+    from sqlalchemy import select
+    from app.db.models import Refund
+    rows = db.scalars(select(Refund).where(Refund.result.in_(("declined", "unknown"))).order_by(Refund.id)).all()
+    return [{"job_id": r.job_id, "amount": r.amount, "rule": r.rule, "result": r.result,
+             "gateway_ref": r.gateway_ref} for r in rows]

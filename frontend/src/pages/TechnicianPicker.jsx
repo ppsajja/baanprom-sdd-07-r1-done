@@ -31,7 +31,9 @@ export default function TechnicianPicker({ api, customerId, addressId, onHeld })
     // REQ-BR-002: ขอยอดมัดจำจากระบบ ไม่คำนวณหรือพิมพ์ยอดเองในหน้าจอ (D-00-05)
     const quote = await api.getDepositQuote({ category })
     if (quote.status !== 200) return setError('ยังแสดงยอดมัดจำไม่ได้ กรุณาลองใหม่')
-    onHeld({ slot, technician: tech, category, holdExpiresAt: hold.body.hold_expires_at, depositAmount: quote.body.deposit_amount })
+    // CR-10 REQ-FN-057 (Q-26): ราคาประเมินและข้อความกำกับมาจากคำตอบเดียวกัน
+    onHeld({ slot, technician: tech, category, holdExpiresAt: hold.body.hold_expires_at, depositAmount: quote.body.deposit_amount,
+      estimateAmount: quote.body.estimate_amount, estimateNote: quote.body.estimate_note })
   }
 
   return (

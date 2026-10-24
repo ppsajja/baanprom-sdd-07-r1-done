@@ -54,3 +54,7 @@ test หลังบ้านและหน้าจอผ่านทั้ง
 
 - ปิดรั้วขาออก (check_answer คืนรายการว่าง): test_AC_14_05_output_guard_blocks_bad_answers ไม่ผ่าน 7 จาก 7 และ test_AC_14_01, 03, 04, 05_prompt_injection, 06_rights, 13 ไม่ผ่าน (13 ตัว) แก้กลับแล้วผ่านทั้งชุด
 - ให้ agent เรียกเครื่องมือเลื่อนนัดทันทีโดยไม่รอยืนยัน (ตัดการตรวจสถานะ confirming): test_AC_14_10_stop_tool_timeout_no_retry, test_AC_14_10_stop_after_two_declines, test_AC_14_09 ไม่ผ่าน แก้กลับแล้วผ่านทั้งชุด
+
+## รอบ CR-10 (3 พ.ย. 2569)
+
+ผลของ AC ที่ CR-10 และ CR-02 เพิ่มหรือแก้ อยู่ในตารางรวมที่ specs/000-shared/ac-results.md ส่วน "รอบ CR-10 และ CR-02" AC อื่นของ feature นี้ผลเท่ารอบก่อน และ test ไม่ถูกแตะ ผลระหว่างตรวจรับ R1 อยู่ใน docs/acceptance/acceptance-record-r1.md

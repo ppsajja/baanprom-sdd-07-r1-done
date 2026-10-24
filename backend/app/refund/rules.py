@@ -2,6 +2,8 @@
 from dataclasses import dataclass
 from datetime import datetime
 
+from app import config
+
 
 @dataclass
 class Decision:
@@ -23,8 +25,8 @@ def decide(status: str, cancelled_by: str, scheduled_start: datetime, now: datet
     if status == "confirmed" and cancelled_by == "customer":
         return Decision("R2", "cancelled", round_up_tens(deposit / 2))
     if status == "en_route" and cancelled_by == "customer":
-        # Q-14 ยังไม่ตอบ พฤติกรรมชั่วคราวตาม spec ข้อ 9: ไม่อนุญาตให้ยกเลิก
-        return Decision("R3", "pending_question", None)
+        # CR-10 (Q-14 ปิดใน EV-048 DR-02 ทางเลือก D): หักค่าเดินทางเหมาให้ช่าง คืนส่วนที่เหลือ ไม่ต่ำกว่า 0
+        return Decision("R3", "cancelled", max(deposit - config.TRAVEL_FEE_BAHT, 0))
     if status == "rematching":
         return Decision("R4", "cancelled", deposit)
     if status == "pending_payment":

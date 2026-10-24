@@ -54,6 +54,10 @@ def hold_slot(db, slot: TimeSlot, customer_id: int, now: datetime) -> TimeSlot:
     return slot
 
 
+# CR-10 (Q-26) ข้อความใต้ราคาประเมินบนหน้ายืนยัน (UI-07-02 รายการ "ต้องตรง") อยู่ที่นี่ที่เดียว
+MSG_ESTIMATE_NOTE = "ค่าบริการเบื้องต้น ยังไม่รวมค่าอะไหล่ ช่างแจ้งราคาจริงก่อนเริ่มงาน"
+
+
 class UnknownCategory(Exception):
     """ประเภทงานที่ไม่อยู่ในตารางราคาประเมิน (AS-10) ไม่มียอดมัดจำ จึงจองไม่ได้"""
 
@@ -65,6 +69,14 @@ def deposit_for(category: str) -> int:
         raise UnknownCategory(category)
     base = config.DEPOSIT_BY_CATEGORY[category]
     return -(-base // 10) * 10
+
+
+def estimate_for(category: str) -> int:
+    """CR-10 REQ-FN-057 (Q-26): ราคาประเมิน (ค่าบริการเบื้องต้น ไม่รวมค่าอะไหล่) จาก config.ESTIMATE_BY_CATEGORY
+    ยอดมัดจำของ deposit_for มาจากตารางเดียวกันนี้ (REQ-BR-002 ฉบับ CR-10) ประเภทที่ไม่อยู่ในตารางไม่เดายอด"""
+    if category not in config.ESTIMATE_BY_CATEGORY:
+        raise UnknownCategory(category)
+    return config.ESTIMATE_BY_CATEGORY[category]
 
 
 def create_booking(db, customer: Customer, slot: TimeSlot, address: ServiceAddress,

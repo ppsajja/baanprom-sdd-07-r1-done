@@ -24,11 +24,30 @@ class CancelRejected(Exception):
 
 
 # ข้อความที่หน้าจอแสดงเมื่อยกเลิกไม่ได้ (UI-08-01 รายการ "ต้องตรง") อยู่ที่นี่ที่เดียว
+# CR-10: MSG_R3_PENDING ไม่ถูกใช้แล้ว (Q-14 ปิด R3 ยกเลิกได้) คงชื่อไว้เพราะเป็นข้อความในบันทึกเดิมของ B4
 MSG_R3_PENDING = "ยกเลิกขณะช่างกำลังเดินทางยังไม่เปิดให้ทำ กรุณาติดต่อ call center (รอ Q-14)"
 MSG_R6_NOT_ALLOWED = "งานที่กำลังดำเนินงานหรือเสร็จสิ้นแล้วยกเลิกไม่ได้ กรุณาใช้กระบวนการร้องเรียน"
 MSG_ALREADY_CLOSED = "งานนี้ถูกยกเลิกไปแล้ว"
 # CR-07 (AC-08-08): ข้อความถึงลูกค้าเมื่อ gateway ไม่ตอบคำขอคืนเงิน
 MSG_REFUND_CHECKING = "กำลังตรวจสอบการคืนเงิน"
+# CR-10 (Q-34, AC-08-11): gateway ปฏิเสธคำขอคืนเงิน งานยังเป็น "ยกเลิก" ไม่ส่งซ้ำเอง Finance ติดตามภายใน 1 วันทำการ
+MSG_REFUND_DECLINED = (f"การคืนเงินต้องตรวจสอบเพิ่ม เจ้าหน้าที่จะติดต่อคุณภายใน "
+                       f"{config.REFUND_FOLLOWUP_BUSINESS_DAYS} วันทำการ")
+# CR-10 (Q-14, AC-08-12): ข้อความใต้ยอดคืนเมื่อยกเลิกขณะช่างกำลังเดินทาง (UI-08-01) ตัวเลขมาจาก config ที่เดียว
+MSG_R3_NOTE = f"หักค่าเดินทางของช่าง {config.TRAVEL_FEE_BAHT} บาท ตามเงื่อนไขการยกเลิกขณะช่างกำลังเดินทาง"
+
+
+def refund_message(refund: "Refund | None") -> str:
+    """CR-10 (Q-34, Q-41): ข้อความเรื่องเงินคืนที่หน้าผลการยกเลิกแสดง ว่างเมื่อ gateway ตอบรับ"""
+    if refund is None or refund.result in ("approved", "not_sent"):
+        return ""
+    if refund.result == "unknown":
+        return f"{MSG_REFUND_CHECKING} {refund.amount} บาท"
+    return MSG_REFUND_DECLINED
+
+
+def note_for(d: Decision) -> str:
+    return MSG_R3_NOTE if d.rule == "R3" and d.outcome == "cancelled" else ""
 
 
 def quote(job: Job, cancelled_by: str, now: datetime) -> Decision:
@@ -69,7 +88,14 @@ def cancel_job(db, job: Job, cancelled_by: str, now: datetime,
     refund_text = f" คืนมัดจำ {d.refund_amount} บาท" if d.refund_amount else ""
     if refund is not None and refund.result == "unknown":
         refund_text = f" {MSG_REFUND_CHECKING} {d.refund_amount} บาท"
+    if refund is not None and refund.result == "declined":
+        # CR-10 (Q-34): ห้ามบอกลูกค้าว่าคืนแล้ว เมื่อ gateway ปฏิเสธ
+        refund_text = f" {MSG_REFUND_DECLINED}"
     queue.enqueue("customer", job.customer_id, f"งาน #{job.id} ถูกยกเลิก{refund_text}", job.id, now)
-    queue.enqueue("technician", job.technician_id, f"งาน #{job.id} ถูกยกเลิก ช่วงเวลากลับเป็นว่าง", job.id, now)
+    tech_text = f"งาน #{job.id} ถูกยกเลิก ช่วงเวลากลับเป็นว่าง"
+    if d.rule == "R3":
+        # CR-10 (Q-14): ช่างรู้ว่าลูกค้ายกเลิกระหว่างเดินทาง ค่าเดินทางเหมาจ่ายผ่าน Finance (นอกระบบใน R1)
+        tech_text = f"งาน #{job.id} ลูกค้ายกเลิกระหว่างที่คุณกำลังเดินทาง ได้ค่าเดินทาง {config.TRAVEL_FEE_BAHT} บาท ผ่าน Finance"
+    queue.enqueue("technician", job.technician_id, tech_text, job.id, now)
     db.commit()
     return d, refund

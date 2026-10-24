@@ -74,7 +74,16 @@ class FakeGateway(Gateway):
 
 
 # gateway ที่ระบบใช้จริง ตั้งค่าใน main.py; test สลับเป็น FakeGateway ผ่าน dependency
-_current: Gateway = FakeGateway()
+# CR-10 (เตรียมเครื่องทดสอบสำหรับการตรวจรับ R1): ตอนยังไม่ต่อ IF-01 จริง เครื่องทดสอบตั้งพฤติกรรมของ FakeGateway
+# ผ่านตัวแปรแวดล้อมได้ เพื่อซ้อม OAT-2 และ OAT-5 และ scenario ของ AC-08-11 บนระบบที่รันจริง ระบบจริงต้องไม่ใช้ FakeGateway เลย
+def _fake_from_env() -> FakeGateway:
+    import os
+    return FakeGateway(mode=os.getenv("FAKE_GATEWAY_MODE", "approved"),
+                       inquiry_answer=os.getenv("FAKE_GATEWAY_INQUIRY", "unknown"),
+                       refund_mode=os.getenv("FAKE_GATEWAY_REFUND_MODE", "approved"))
+
+
+_current: Gateway = _fake_from_env()
 
 
 def get_gateway() -> Gateway:

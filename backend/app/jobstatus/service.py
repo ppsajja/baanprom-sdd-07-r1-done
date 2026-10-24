@@ -4,6 +4,8 @@ from datetime import datetime
 
 from sqlalchemy import select
 
+from app import config
+
 from app.db.models import Job, JobStatusHistory, set_status
 from app.booking.service import technician_view
 from app.notify.queue import queue
@@ -45,7 +47,13 @@ def change_status(db, job: Job, technician_id: int, to_status: str, now: datetim
         raise TransitionNotAllowed(job.status, to_status)
     set_status(db, job, to_status, now)  # ที่เดียวทั้งระบบ เขียน job_status_history ให้
     # รองรับ REQ-FN-053: วางข้อความถึงลูกค้าลงคิว due_at = now + 60 วินาที ไม่รอผลส่ง (IF-02)
-    queue.enqueue("customer", job.customer_id, f"งาน #{job.id} สถานะ {STATUS_TH[to_status]}", job.id, now)
+    text = f"งาน #{job.id} สถานะ {STATUS_TH[to_status]}"
+    if to_status == "done":
+        # CR-10 (Q-31 ปิดใน EV-048, AC-09-15): เสร็จสิ้นเมื่อช่างปิดงาน ไม่มีขั้นลูกค้ายืนยัน
+        # ข้อความบอกช่องทางแจ้งปัญหา (เลขโทรของ call center ไม่ใช่ข้อมูลส่วนบุคคล)
+        text += (f" หากงานยังไม่เรียบร้อย แจ้ง call center ที่ {config.call_center_tel()} "
+                 f"ภายใน {config.JOB_ISSUE_REPORT_DAYS} วัน")
+    queue.enqueue("customer", job.customer_id, text, job.id, now)
     db.commit()
     return job
 

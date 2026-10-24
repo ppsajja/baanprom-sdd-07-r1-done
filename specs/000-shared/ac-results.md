@@ -41,3 +41,30 @@ AC-00-01 ถึง AC-00-08 ไม่เปลี่ยน รันซ้ำท
 | eval (ใหม่) | ไม่มี | 20 จาก 20 เกณฑ์ผ่าน บน eval set 290 ข้อ ด้วย MockLLM และข้อความสั่ง P-1.1 (รอบที่ 1 ด้วย P-1.0 ผ่าน 11 จาก 20) |
 | test เดิมที่ต้องเปลี่ยนเพราะ CR | 8 ตัว (CR-07) | 0 ตัว |
 | ข้อค้นพบและช่องว่างที่เปิด | F-05, F-06, F-07, F-09, F-10, F-11, F-13, F-14, GAP-24, GAP-26, GAP-28 | เดิมทั้งหมด และ GAP-31, GAP-32, GAP-33, F-15, F-16 |
+
+## รอบ CR-10 และ CR-02 (ประชุม EV-048 3 พ.ย. 2569 ก่อนตรวจรับ R1)
+
+ตารางนี้รวม AC ที่ CR-10 และ CR-02 เพิ่มหรือแก้ของทุก feature ไว้ที่เดียว ไฟล์ ac-results.md ของแต่ละ feature ชี้มาที่นี่ AC อื่นผลเท่ารอบก่อนและ test ไม่ถูกแตะ
+ผลรันจริง: specs/000-shared/test-run.txt (Python 3.11 และ 3.12 104 passed หน้าจอ 40 passed 24 ไฟล์) รอบแรกก่อนแก้ test เดิม: test-run-cr10-round1.txt
+
+| AC ID | REQ ที่พิสูจน์ | test | task | ผล | หมายเหตุ |
+|---|---|---|---|---|---|
+| AC-07-08 (ฉบับ CR-02) | REQ-QA-003 | test_AC_07_08_search_under_load_scaled | T-09 ของ 002 | ผ่าน (ย่อส่วน 20 จาก 500) | test ไม่แตะ ผลตรวจรับต้องมาจากการยิงโหลด 500 คำขอบนเครื่องทดสอบ (uat-plan-r1.md เกณฑ์จบข้อ 4) |
+| AC-07-10 แถว R3 | REQ-BR-001 | test_AC_07_10_refund_R3 | T-30 ของ 002 | ผ่าน | เดิมข้าม (Q-14) ไม่มี test ข้ามในโครงการแล้ว |
+| AC-07-19 | REQ-FN-057, REQ-BR-002 | test_AC_07_19_estimate_and_deposit_from_same_table x3, AC-07-19.test.jsx, UI-07-02.test.jsx (ราคาประเมิน) | T-28, T-29 ของ 002 | ผ่าน | ยอดมัดจำเท่าเดิมทุกประเภท test ของ AC-07-11 ไม่แตะ |
+| AC-08-06 | REQ-BR-001, REQ-FN-054 | test_AC_08_06_not_cancellable_returns_message (แถว R6), AC-08-06.test.jsx (R6) | T-13 ของ 004 | ผ่าน | แถว R3 ออกตามตาราง "test เดิมที่เปลี่ยน" ของ CR-10 |
+| AC-08-11 | REQ-IF-010 | test_AC_08_11_gateway_declines_refund_no_retry_finance_follow_up, AC-08-11.test.jsx | T-12 ของ 004 | ผ่าน | ปิด F-13 |
+| AC-08-12 | REQ-BR-001, REQ-FN-054, REQ-FN-055 | test_AC_08_12_cancel_while_en_route_deducts_travel_fee, AC-08-12.test.jsx | T-13 ของ 004 | ผ่าน | |
+| AC-09-15 | REQ-FN-051, REQ-FN-053 | test_AC_09_15_done_without_customer_confirm_and_message_tells_how_to_report | T-13 ของ 003 | ผ่าน | |
+| AC-00-02 (ช่องทางจริง) | REQ-OP-005 | test_AC_00_02_webhook_pager_reaches_on_call, test_AC_00_02_webhook_pager_retries_next_minute_when_service_fails | T-31 ของ 002 | ผ่าน | เครื่องรับ webhook ในเครื่อง OAT-2 ตรวจบนระบบที่รันจริง |
+| UI-08-02 (รายการใหม่) | REQ-FN-054 (Q-35) | UI-08-02.test.jsx test ที่ 2 | T-13 ของ 004 | ผ่าน | |
+| eval ของ UC-14 | REQ-AI-005 ถึง 013, REQ-AI-021 | eval_run.py กับ eval set 1.1 | T-13 ของ 005 | 20 จาก 20 เกณฑ์ | รอบแรก (eval set 1.0 กับ BR ใหม่) AC-14-13 ไม่ผ่าน 6.9 ใน 100 เกินเกณฑ์ 5 |
+
+| | B4 (31 ต.ค.) | หลัง CR-10 (3 พ.ย. ก่อนตรวจรับ) |
+|---|---|---|
+| AC ในสเปก | 66 | 70 (เพิ่ม AC-07-19, AC-08-11, AC-08-12, AC-09-15) |
+| test หลังบ้าน | 97 ผ่าน 1 ข้าม | 104 ผ่าน 0 ข้าม |
+| test หน้าจอ | 37 ผ่าน (21 ไฟล์) | 40 ผ่าน (24 ไฟล์) |
+| eval | 20 จาก 20 (eval set 1.0) | 20 จาก 20 (eval set 1.1) |
+| test เดิมที่ต้องเปลี่ยนเพราะ CR | 0 | 5 จุด และ eval 4 ข้อ ตามตารางใน CR-10 |
+| ข้อค้นพบและช่องว่างที่ปิด | | F-13 (AC-08-11), F-15 (การตีความของ SH-01), GAP-07 (Q-19) |

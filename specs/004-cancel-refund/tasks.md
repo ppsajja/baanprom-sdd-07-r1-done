@@ -5,7 +5,7 @@ Feature: SPEC-CANCEL | อ้างอิง: plan.md (plan v1) | สร้า�
 
 tasks v2 (2569-10-24): เพิ่ม T-07 ถึง T-11 ตาม CR-07 ด้วยข้อความสั่งในแชต **ไม่ได้รัน /tasks ใหม่** (prompt-log.md #70) เลขและสถานะของ T-01 ถึง T-06 ไม่เปลี่ยน
 
-สรุป: 11 task | 0 task รอ Q-xx ทั้ง task (Q-14, Q-34, Q-35 มีพฤติกรรมชั่วคราวใน spec ส่วน 9)
+สรุป: 14 task (tasks v3 ดูท้ายไฟล์) | 0 task รอ Q-xx ทั้ง task (Q-14, Q-34, Q-35 ปิดใน CR-10)
 สถานะปัจจุบัน: เสร็จ 11 (ทุก task ผ่านการตรวจ 5 ข้อแล้ว task หน้าจอผ่านการตรวจเทียบ mockup 6 ข้อด้วย)
 
 ### T-01 เมธอด refund ใน Gateway และคอลัมน์ผลคืนเงินในตาราง refunds
@@ -160,3 +160,34 @@ tasks v2 (2569-10-24): เพิ่ม T-07 ถึง T-11 ตาม CR-07 ด�
 | REQ-SEC-012 | ไม่มี task ใน feature นี้ (T-21, T-24 ของ 002) |
 | REQ-PRV-010 | ไม่เกี่ยวกับ feature นี้ เพราะไม่มีข้อมูลส่วนบุคคลใหม่ |
 | REQ-CMP-001 | ไม่มี task |
+
+### ส่วนที่เพิ่มตาม CR-10 (tasks v3, 3 พ.ย. 2569)
+
+tasks v3: เพิ่ม T-12 ถึง T-14 ด้วยข้อความสั่งในแชต (prompt-log.md #81) รวม 14 task เสร็จ 14
+
+### T-12 gateway ปฏิเสธคำขอคืนเงิน และรายการที่ Finance ต้องปิด (CR-10, Q-34)
+- รองรับ: REQ-IF-010
+- ตรวจด้วย: AC-08-11, AC-08-03 และ AC-08-08 (เดิม ไม่แก้)
+- ไฟล์ที่แตะ: backend/app/refund/service.py, backend/app/cancel/router.py, backend/app/ops/router.py, backend/tests/test_cancel_cr10.py, docs/srs/operations.md (บัญชี endpoint)
+- แบบหน้าจอ: UI-08-02 สถานะ 2 (รุ่น CR-10)
+- ต้องทำหลัง: ไม่มี
+- เสร็จเมื่อ: test_AC_08_11 ผ่าน และ gateway ได้คำขอคืนเงิน 1 ครั้ง
+- สถานะ: เสร็จ
+
+### T-13 ยกเลิกขณะช่างกำลังเดินทาง และหน้าจอยกเลิกกับผลการยกเลิก (CR-10, Q-14, Q-35)
+- รองรับ: REQ-BR-001, REQ-FN-054, REQ-FN-055
+- ตรวจด้วย: AC-08-12, AC-08-06 (แถว R6), UI-08-01, UI-08-02
+- ไฟล์ที่แตะ: backend/app/refund/service.py, backend/app/cancel/router.py, frontend/src/pages/CancelBooking.jsx, frontend/src/pages/CancelResult.jsx, frontend/src/__tests__/AC-08-11.test.jsx, AC-08-12.test.jsx, UI-08-02.test.jsx, AC-08-06.test.jsx และ backend/tests/test_cancel.py (ตาราง "test เดิมที่เปลี่ยน" ของ CR-10)
+- แบบหน้าจอ: UI-08-01 และ UI-08-02 รุ่น CR-10
+- ต้องทำหลัง: T-30 ของ 002
+- เสร็จเมื่อ: test ทั้งหลังบ้านและหน้าจอผ่าน หน้าจอไม่มีตัวเลขค่าเดินทางหรือจำนวนวันพิมพ์เอง
+- สถานะ: เสร็จ
+
+### T-14 รัน test ทั้งชุดและ eval หลัง CR-10
+- รองรับ: ทุก REQ ของ CR-10
+- ตรวจด้วย: ทุก AC ของ 002 ถึง 005 และ AC-00-nn
+- ไฟล์ที่แตะ: specs/000-shared/test-run.txt, specs/000-shared/test-run-cr10-round1.txt, specs/005-ai-assistant/eval-results.md และ .json, ac-results.md, rtm.md
+- แบบหน้าจอ: ไม่มี
+- ต้องทำหลัง: T-28 ถึง T-31 ของ 002, T-13 ของ 003, T-12 และ T-13 ของ 004, T-13 ของ 005
+- เสร็จเมื่อ: test เดิมที่ไม่อยู่ในตาราง "test เดิมที่เปลี่ยน" ของ CR-10 ผ่านโดยไม่ถูกแตะ test ใหม่ผ่าน eval ผ่าน 20 จาก 20 เกณฑ์
+- สถานะ: เสร็จ

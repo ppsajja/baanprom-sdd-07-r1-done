@@ -245,3 +245,31 @@ plan v3: CR-07 อนุมัติแล้ว (24 ต.ค. 2569) คอลั
 
 ### 9.4 ลำดับงาน
 T-17 (ตาราง) ก่อน T-18 ถึง T-23 ซึ่งทำคู่กันได้ T-24 (ops) ใช้ audit จาก T-20 T-25 (คู่มือ) หลัง T-21 และ T-24 เพราะต้องมีบัญชี endpoint ล่าสุด T-26 (หน้าจอ) หลัง T-18 และ T-19 T-27 (รันทั้งชุด) สุดท้าย
+
+## 10. ปรับตาม CR-10 และ CR-02 (plan v4, 3 พ.ย. 2569)
+
+ข้อนี้เพิ่มใหม่ ข้อ 1 ถึง 9 ไม่แก้ ร่างด้วย /plan จาก spec 1.6 (prompt-log.md #81)
+
+### 10.1 ค่าใหม่ใน config.py (D-00-05 ค่าทุกตัวอยู่ที่เดียว)
+- ESTIMATE_BY_CATEGORY (700, 800, 1000) และ DEPOSIT_PER_100_OF_ESTIMATE = 50 DEPOSIT_BY_CATEGORY คำนวณจากสองค่านี้ ยอดเท่าเดิม (Q-26)
+- TRAVEL_FEE_BAHT = 100 (Q-14) REFUND_FOLLOWUP_BUSINESS_DAYS = 1 (Q-34) JOB_ISSUE_REPORT_DAYS = 7 (Q-31)
+- PAGER_WEBHOOK_URL (ตัวแปรแวดล้อม) และ PAGER_TIMEOUT_SECONDS = 5 (GAP-28) ใช้ httpx ที่มีอยู่แล้วใน requirements.txt ไม่เพิ่ม library
+
+### 10.2 API ที่เปลี่ยน
+| รายการ | เปลี่ยนอย่างไร | รองรับ |
+|---|---|---|
+| GET /deposit-quote | เพิ่ม estimate_amount และ estimate_note ในคำตอบ ยอดมัดจำมาจากฟังก์ชันเดิม | REQ-FN-057, REQ-BR-002, AC-07-19 |
+| หน้ายืนยัน UI-07-02 | แสดงราคาประเมินและข้อความกำกับจากคำตอบ บรรทัดที่ 3 ของเงื่อนไขการยกเลิกตาม BR-01 R3 รุ่น 1.1 | REQ-FN-057, REQ-BR-001 |
+| refund/rules.py (BR-01 R3) | R3 เป็น cancelled ยอด = มัดจำ ลบ TRAVEL_FEE_BAHT ไม่ต่ำกว่า 0 (ของ 004 ใช้ตัวเดียวกัน) | REQ-BR-001, AC-07-10 |
+| ops/alerts.py Pager | ส่ง HTTPS POST ไป PAGER_WEBHOOK_URL ส่งไม่ถึงให้ส่งใหม่นาทีถัดไป | REQ-OP-005 บรรทัดที่ 2 (GAP-28) |
+
+### 10.3 แผนทดสอบที่เพิ่ม
+| AC | test | ตรวจอย่างไร |
+|---|---|---|
+| AC-07-08 (ฉบับ CR-02) | test_AC_07_08_search_under_load_scaled (เดิม ย่อส่วน 20) และการยิงโหลด 500 คำขอบนเครื่องทดสอบตอนตรวจรับ | test ย่อส่วนไม่เปลี่ยน ผลตรวจรับมาจากการยิงโหลดจริง ไม่ใช่ pytest |
+| AC-07-10 แถว R3 | test_AC_07_10_refund_R3 (เอา skip ออก) | ยอดคืน 250 |
+| AC-07-19 | test_AC_07_19_estimate_and_deposit_from_same_table, AC-07-19.test.jsx | 3 ประเภทงาน |
+| AC-00-02 (ช่องทางจริง) | test_AC_00_02_webhook_pager_reaches_on_call, test_AC_00_02_webhook_pager_retries_next_minute_when_service_fails | เครื่องรับ HTTP ในเครื่อง ใช้ Pager ตัวจริง |
+
+### 10.4 ลำดับงาน
+T-28 (config และ deposit-quote) ก่อน T-29 (หน้าจอ) T-30 (BR-01 R3 ใช้ร่วมกับ 004) และ T-31 (Pager) ทำคู่กันได้ รันทั้งชุดหลังทุก task ของ CR-10 (T-14 ของ 004)

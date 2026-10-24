@@ -13,3 +13,10 @@ test('UI-08-02 แสดง ยกเลิกแล้ว หมายเลข
   expect(screen.getByRole('button', { name: 'กลับหน้าหลัก' })).toBeInTheDocument()
   expect(screen.queryByText(/วันทำการ/)).toBeNull()  // รอ Q-35 ห้ามสร้าง
 })
+
+// CR-10 (Q-35 ปิดใน EV-048): รายการ "ต้องตรง" ใหม่ของ UI-08-02 บอกช่องทางและว่าระยะเวลาขึ้นกับธนาคาร ไม่บอกจำนวนวัน
+test('UI-08-02 บอกว่าคืนผ่านช่องทางที่ชำระมัดจำ ระยะเวลาขึ้นกับธนาคารผู้ออกบัตร และไม่มีจำนวนวัน', () => {
+  render(<CancelResult result={{ job_id: 9, status: 'cancelled', rule: 'R2', refund_amount: 180, refund_result: 'approved', refund_message: '' }} onHome={() => {}} />)
+  expect(screen.getByText('คืนผ่านช่องทางที่ชำระมัดจำ ระยะเวลาที่เงินเข้าบัญชีขึ้นกับธนาคารผู้ออกบัตร')).toBeInTheDocument()
+  expect(screen.queryByText(/วันทำการ/)).toBeNull()
+})

@@ -41,9 +41,10 @@ def refund_quote(job_id: int, customer_id: int, db: Session = Depends(get_db), n
     d = service.quote(job, "customer", now)
     allowed = d.outcome in ("cancelled", "auto_cancelled")
     message = "" if allowed else (service.MSG_R3_PENDING if d.outcome == "pending_question" else service.MSG_R6_NOT_ALLOWED)
+    # CR-10 (Q-14, AC-08-12): note บอกเหตุที่ยอดคืนถูกหัก (R3) ข้อความมาจากหลังบ้านที่เดียว
     return {"job_id": job.id, "status": job.status, "deposit_amount": job.deposit_amount,
             "scheduled_start": job.scheduled_start.isoformat(), "allowed": allowed, "rule": d.rule,
-            "refund_amount": d.refund_amount or 0, "message": message}
+            "refund_amount": d.refund_amount or 0, "message": message, "note": service.note_for(d)}
 
 
 @router.post("/jobs/{job_id}/customer-cancel")
@@ -55,6 +56,8 @@ def customer_cancel(job_id: int, body: CustomerCancelIn, db: Session = Depends(g
     except service.CancelRejected as e:
         return JSONResponse({"rule": e.decision.rule, "outcome": e.decision.outcome, "message": e.message}, status_code=409)
     log_event(log, "customer_cancelled", customer_id=body.customer_id, job_id=job.id, rule=d.rule)  # REQ-PRV-002
+    # CR-10 (Q-34, AC-08-11): refund_message ไม่ว่างเมื่อ gateway ปฏิเสธหรือไม่ตอบ หน้าผลการยกเลิกแสดงแทนคำว่าคืนแล้ว
     return {"job_id": job.id, "status": job.status, "rule": d.rule,
             "refund_amount": refund.amount if refund else 0,
-            "refund_result": refund.result if refund else None}
+            "refund_result": refund.result if refund else None,
+            "refund_message": service.refund_message(refund)}

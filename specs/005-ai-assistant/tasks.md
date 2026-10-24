@@ -3,7 +3,7 @@
 Feature: SPEC-ASSISTANT | อ้างอิง: plan.md (plan v1) | สร้างด้วย /tasks วันที่ 2569-10-31 (tasks v1, prompt-log.md #75)
 ทีมสั่งแก้รอบที่ 1 หนึ่งจุด: ร่างแรกของ AI รวม eval set เข้ากับ T-06 ทีมแยกเป็น T-09 เพราะ eval set เป็นงานของนักวิเคราะห์กับเจ้าของ ไม่ใช่ของโปรแกรมเมอร์ (หน้าบทเรียนหัวข้อ 9.3)
 
-สรุป: 12 task | 0 task รอ Q-xx ทั้ง task (Q-35 มีพฤติกรรมชั่วคราวใน spec ส่วน 9)
+สรุป: 13 task (T-13 เพิ่มตาม CR-10 ดูท้ายไฟล์) | 0 task รอ Q-xx ทั้ง task (Q-35 ปิดใน CR-10 ผู้ช่วยยังตอบว่าไม่มีข้อมูลจำนวนวัน)
 สถานะปัจจุบัน: เสร็จ 12 (ทุก task ผ่านการตรวจ 5 ข้อ T-10 ตรวจด้วย test ของรายการ "ต้องตรง" การตรวจเทียบ mockup ด้วยคนยังไม่ทำ GAP-33)
 
 ### T-01 ตารางใหม่ migration m003 และค่าใน config.py
@@ -160,3 +160,14 @@ Feature: SPEC-ASSISTANT | อ้างอิง: plan.md (plan v1) | สร้�
 ## สิ่งที่ยังไม่ทำ
 
 ตามที่ plan.md ข้อ 8 บอก ไม่มี task ของ LLM ตัวจริง การทดลองกับคน และเครื่องมือเลื่อนกลับของ call center (GAP-31)
+
+### ส่วนที่เพิ่มตาม CR-10 (tasks v2, 3 พ.ย. 2569)
+
+### T-13 คลังนโยบายและ eval set รุ่น 1.1 ตาม BR-01 รุ่น 1.1 (CR-10)
+- รองรับ: REQ-DAT-010 บรรทัดที่ 2, REQ-AI-005, REQ-AI-007
+- ตรวจด้วย: AC-14-06 (policy_matches_baseline) และ eval ทั้งชุด (AC-14-01 ถึง AC-14-13)
+- ไฟล์ที่แตะ: backend/app/assistant/policies/cancel-policy.md, backend/app/assistant/policies/refund-timing.md, specs/005-ai-assistant/eval/qa.jsonl, eval/CHANGELOG.md, eval/README.md, eval-results.md, eval-results.json
+- แบบหน้าจอ: ไม่มี
+- ต้องทำหลัง: T-30 ของ 002
+- เสร็จเมื่อ: eval 20 จาก 20 เกณฑ์ และ eval set มีบันทึกรุ่น 1.1 ใน CHANGELOG
+- สถานะ: เสร็จ

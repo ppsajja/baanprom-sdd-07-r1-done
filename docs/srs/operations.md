@@ -1,7 +1,8 @@
-# คู่มือรับมือเหตุ (runbook) ฉบับใช้จริง รุ่น 1.1 | บ้านพร้อม R1
+# คู่มือรับมือเหตุ (runbook) ฉบับใช้จริง รุ่น 1.2 | บ้านพร้อม R1
 
 สถานะ: ใช้จริง (Baseline B3) | เจ้าของ: Ops lead (รับเป็นเจ้าของในประชุมทบทวน EV-045 วันที่ 24 ต.ค. 2569) | ที่มา: REQ-OP-006, REQ-OP-007, REQ-SEC-012 ใน specs/000-shared/constraints.md ส่วน 6 (CR-07 Approved)
 รุ่น 1.1 (CR-09 Approved EV-047 Baseline B4): เพิ่มเหตุการณ์ที่ 6 ผู้ช่วยตอบเพี้ยนหรือเลื่อนนัดผิด เครื่องมือของคนเวรสำหรับผู้ช่วย และ endpoint ของผู้ช่วยในบัญชี endpoint หัวหน้า call center เพิ่มในตารางบทบาท เหตุการณ์ที่ 6 ยังไม่ได้เดินตาม
+รุ่น 1.2 (CR-10 Approved EV-048): รายการคืนเงินที่ Finance ต้องปิดอ่านจาก GET /ops/refunds/follow-up (รวม declined ของ Q-34) ช่องทางถึงคนเวรเป็น webhook ที่ PAGER_WEBHOOK_URL (GAP-28) เพิ่ม endpoint ในบัญชี endpoint
 ตรวจแล้วด้วย walkthrough (วิธีตรวจของ REQ-OP-006): สมาชิกกลุ่ม Y ที่ไม่เคยเห็นระบบ เดินตามเหตุการณ์ที่ 1 ถึง 3 จนจบ แก้ 2 จุดที่ติดแล้ว (บันทึกใน CR-07 ส่วน walkthrough) เหตุการณ์ที่ 4 และ 5 เพิ่มหลัง walkthrough ยังไม่ได้เดินตาม
 ประวัติ: รุ่นร่าง (รอบ Failure Day) AI ร่างแทนทีม (prompt-log.md #68) | รุ่น 1.0 ทีมแก้ตามคำตอบ Q-40, Q-41, Q-43, Q-44 และผล walkthrough (prompt-log.md #71) การแก้ไฟล์นี้ต้องผ่าน Ops lead เพิ่มหรือปิด endpoint ต้องแก้ "บัญชี endpoint" ใน commit เดียวกัน (REQ-SEC-012)
 
@@ -30,6 +31,8 @@ runbook คือเอกสารที่คนเวรเปิดตอน
 - ตัวนับต่อ endpoint ต่อนาที: `curl -s -H "X-Ops-Token: $TOKEN" $BASE/metrics` ดูช่อง requests, failures, empty_results, avg_ms, max_ms
 - คิวข้อความ: `curl -s -H "X-Ops-Token: $TOKEN" $BASE/notifications/queue` ดูช่อง delivered_at, attempts, gave_up
 - รายการคืนเงินที่ไม่ทราบผล (คำสั่ง SQL ที่ Dev lead ให้สิทธิ์อ่านอย่างเดียว): `SELECT job_id, amount, gateway_ref FROM refunds WHERE result = 'unknown';`
+- (รุ่น 1.2 CR-10) รายการคืนเงินที่ Finance ต้องปิด ทั้งไม่ทราบผล (unknown) และ gateway ปฏิเสธ (declined): `curl -s -H "X-Ops-Token: $TOKEN" $BASE/ops/refunds/follow-up` Finance ใช้คำสั่งนี้แทน SQL
+- (รุ่น 1.2 CR-10) ช่องทางถึงคนเวร: ระบบส่ง HTTPS POST แบบ JSON {kind, text, at} ไปที่ PAGER_WEBHOOK_URL ทุกครั้งที่เกณฑ์เตือนครบ ส่งไม่ถึงส่งใหม่นาทีถัดไป ถ้าไม่ได้ตั้งตัวแปรนี้ ข้อความเตือนลง log อย่างเดียว (ห้ามเปิดระบบจริงโดยไม่ตั้ง)
 - คำขอที่ถูกปฏิเสธสิทธิ์: `SELECT actor_role, actor_id, count(*) FROM security_events WHERE kind = 'denied' AND at > now() - interval '1 day' GROUP BY 1, 2;`
 
 - ผู้ช่วย (CR-09): ปิด `curl -s -X POST -H "X-Ops-Token: $TOKEN" -H "Content-Type: application/json" -d '{"enabled": false}' $BASE/ops/assistant/switch` เปิดใช้ค่า true | ตรวจว่าปิดแล้ว `curl -s $BASE/assistant/status` ต้องได้ "enabled": false | ตั๋วส่งต่อ `curl -s -H "X-Ops-Token: $TOKEN" $BASE/ops/assistant/tickets` | ทำไมนัดของงานหนึ่งถูกเลื่อน `curl -s -H "X-Ops-Token: $TOKEN" $BASE/ops/assistant/jobs/<เลขงาน>/actions`
@@ -46,7 +49,7 @@ runbook คือเอกสารที่คนเวรเปิดตอน
 2. ไม่ต้องหยุดระบบ ระบบทำโหมดลดรูปเองตาม REQ-QA-010: ล็อกช่วงเวลาไว้ 10 นาที บันทึกเป็น "รอชำระเงิน" ลูกค้ากดยืนยันซ้ำได้โดยไม่ถูกตัดซ้ำ (ใช้ reference เดิม) ห้ามใครส่งคำขอตัดเงินด้วยมือจากฝั่งเรา
 3. แจ้ง call center ให้ใช้ข้อความนี้กับลูกค้า: "ระบบชำระเงินของผู้ให้บริการขัดข้องชั่วคราว การจองของคุณถูกล็อกไว้ 10 นาที กดยืนยันอีกครั้งได้ ระบบจะไม่ตัดเงินซ้ำ" และนับจำนวนสายที่รับ
 4. ติดต่อ gateway ตามช่องทางในสัญญา (REQ-CON-003) ขอเวลาที่คาดว่าจะกลับมา และบันทึกเวลาที่โทรกับคำตอบลงบันทึกเหตุการณ์
-5. หลังเหตุจบ ส่งรายการคืนเงินที่ result = unknown (คำสั่งในส่วนเครื่องมือ) ให้ Finance ปิดภายใน 1 วันทำการ (Q-41) ระบบไม่ส่งคำขอคืนเงินซ้ำเอง
+5. หลังเหตุจบ ส่งรายการคืนเงินที่ result = unknown (คำสั่งในส่วนเครื่องมือ) ให้ Finance ปิดภายใน 1 วันทำการ (Q-41) ระบบไม่ส่งคำขอคืนเงินซ้ำเอง รุ่น 1.2: Finance เปิด GET /ops/refunds/follow-up เองได้ รายการ declined (gateway ปฏิเสธ Q-34) ปิดแบบเดียวกันแม้ไม่มีเหตุการณ์
 จุดยกระดับ
 - gateway ไม่ตอบเกิน 15 นาที (Ops lead ยืนยันใน Q-43): Ops lead ตัดสินว่าจะปิดรับจองชั่วคราวหรือเปิดต่อในโหมดลดรูป
 - มีลูกค้าถูกตัดเงินซ้ำแม้แต่ 1 ราย: แจ้งเจ้าของธุรกิจทันที เพราะเป็นเรื่องเงินและความเชื่อถือ และเปิด CR (ระบบไม่ควรทำแบบนี้ได้แล้วตาม AC-07-13)
@@ -195,6 +198,7 @@ runbook คือเอกสารที่คนเวรเปิดตอน
 | POST /assistant/conversations, POST /assistant/messages | 005 | ลูกค้า | customer_id ต้องเป็นเจ้าของบทสนทนา ค้นข้อมูลเฉพาะงานของ customer_id (REQ-DAT-010) เพดาน 30 ข้อความต่อชั่วโมง | ไม่มี (คำตอบผ่านรั้วขาออก ไม่มีเบอร์) |
 | POST /assistant/proposals/{proposal_id}/confirm, POST /assistant/proposals/{proposal_id}/decline | 005 | ลูกค้า | customer_id ต้องเป็นเจ้าของข้อเสนอ | ไม่มี |
 | POST /assistant/conversations/{conversation_id}/handoff, POST /assistant/turns/{turn_id}/report | 005 | ลูกค้า | customer_id ต้องเป็นเจ้าของ | ไม่มี |
+| GET /ops/refunds/follow-up | 004 (CR-10) | Finance ผ่าน Ops | X-Ops-Token ในโหมด production | ไม่มี (เลขงาน ยอด ผล reference ของ gateway) |
 | POST /ops/assistant/switch, GET /ops/assistant/tickets, GET /ops/assistant/jobs/{job_id}/actions | 005 | หัวหน้า call center ผ่าน Ops | X-Ops-Token ในโหมด production (GAP-32 ยังไม่มีกุญแจแยกบทบาท) | ข้อความลูกค้าแบบปิดบังแล้ว |
 
 ## แบบบันทึกเหตุการณ์ (incident record)
@@ -259,5 +263,5 @@ runbook คือเอกสารที่คนเวรเปิดตอน
 
 - เหตุการณ์ที่ 4 และ 5 ยังไม่ได้ walkthrough
 - ยังไม่มีการซ้อมกู้คืนบน PostgreSQL ของระบบจริง (เงื่อนไขก่อนเปิด R1 ตาม CR-07)
-- ช่องทางถึงคนเวร (Pager ใน backend/app/ops/alerts.py) ตอนนี้เขียน log อย่างเดียว Ops lead ยังไม่เลือกบริการส่งข้อความเวร (GAP-28)
+- ช่องทางถึงคนเวร (Pager ใน backend/app/ops/alerts.py) ตอนนี้เขียน log อย่างเดียว Ops lead ยังไม่เลือกบริการส่งข้อความเวร (GAP-28) รุ่น 1.2: Ops lead เลือกบริการแบบ webhook แล้ว (EV-048) โค้ดส่งได้แล้ว ปิดเมื่อ OAT-2 ผ่านบนเครื่องทดสอบ
 - ยังไม่มีเกณฑ์เตือนของคำตอบว่าง (Ops lead ตัดสินใจให้ดูรายสัปดาห์ก่อน)

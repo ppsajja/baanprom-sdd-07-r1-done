@@ -70,11 +70,14 @@ def hold_limit_response(e: "service.HoldLimitReached") -> JSONResponse:
 @router.get("/deposit-quote")
 def deposit_quote(category: str):
     # รองรับ REQ-BR-002 (AC-07-11): ยอดที่หน้าจอแสดงก่อนยืนยัน มาจากฟังก์ชันเดียวกับที่ใช้ตัดมัดจำ
+    # CR-10 รองรับ REQ-FN-057 (AC-07-19): ส่งราคาประเมินไปพร้อมกัน หน้าจอไม่มีตารางราคาของตัวเอง (D-00-05)
     try:
         amount = service.deposit_for(category)
+        estimate = service.estimate_for(category)
     except service.UnknownCategory:
         raise HTTPException(422, "ไม่รู้จักประเภทงาน")
-    return {"category": category, "deposit_amount": amount}
+    return {"category": category, "deposit_amount": amount, "estimate_amount": estimate,
+            "estimate_note": service.MSG_ESTIMATE_NOTE}
 
 
 @router.post("/bookings", status_code=201)

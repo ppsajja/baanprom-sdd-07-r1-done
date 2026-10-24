@@ -14,13 +14,7 @@ async function open(body) {
   await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
 }
 
-test('AC-08-06 R3 ช่างกำลังเดินทาง แสดง "ติดต่อ call center" (พฤติกรรมชั่วคราว รอ Q-14) และไม่มีปุ่มยืนยัน', async () => {
-  await open(quoteFor('en_route', 'R3', 'ยกเลิกขณะช่างกำลังเดินทางยังไม่เปิดให้ทำ กรุณาติดต่อ call center (รอ Q-14)'))
-  expect(screen.getByRole('alert')).toHaveTextContent('ยกเลิกไม่ได้')
-  expect(screen.getByRole('alert')).toHaveTextContent('ติดต่อ call center')
-  expect(screen.getByText('ช่างกำลังเดินทาง')).toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: /ยืนยันยกเลิก/ })).toBeNull()
-})
+// CR-10 (Q-14 ปิด): test ของแถว R3 (พฤติกรรมชั่วคราว) ย้ายไปเป็น AC-08-12.test.jsx ตามตาราง "test เดิมที่เปลี่ยน" ของ CR-10
 
 test('AC-08-06 R6 กำลังดำเนินงาน แสดงข้อความยกเลิกไม่ได้จากระบบ และไม่มีปุ่มยืนยัน', async () => {
   await open(quoteFor('in_progress', 'R6', 'งานที่กำลังดำเนินงานหรือเสร็จสิ้นแล้วยกเลิกไม่ได้ กรุณาใช้กระบวนการร้องเรียน'))

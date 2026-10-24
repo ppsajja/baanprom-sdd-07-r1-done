@@ -169,3 +169,18 @@ refunds.result เพิ่มค่า unknown (gateway ไม่ตอบค�
 | AC-08-08 | test_AC_08_08_refund_timeout_recorded_unknown_not_resent | FakeGateway(refund_mode=timeout) |
 | AC-08-09 | test_AC_08_09_cancel_under_load_scaled | 10 คำขอพร้อมกัน (ย่อจาก 50) |
 | AC-08-10 | test_AC_08_10_customer_cannot_cancel_other_customers_job, AC-08-10.test.jsx | ลูกค้า A ยกเลิกงาน B ได้ 403 งาน B ไม่เปลี่ยน บันทึก 1 แถว |
+
+## 10. ปรับตาม CR-10 (plan v3, 3 พ.ย. 2569)
+
+ข้อนี้เพิ่มใหม่ ข้อ 1 ถึง 9 ไม่แก้
+
+| รายการ | เปลี่ยนอย่างไร | รองรับ |
+|---|---|---|
+| GET /jobs/{id}/refund-quote | เพิ่มช่อง note (ข้อความเหตุที่ยอดคืนถูกหัก มีเฉพาะ R3) | REQ-BR-001, AC-08-12 |
+| POST /jobs/{id}/customer-cancel | เพิ่มช่อง refund_message (ไม่ว่างเมื่อ gateway ปฏิเสธหรือไม่ตอบ) | REQ-IF-010, AC-08-11 |
+| refund/service.py cancel_job | R3 ยกเลิกได้ (ใช้ rules.py ของ 002) ข้อความถึงลูกค้าเมื่อ declined ไม่บอกว่าคืนแล้ว ข้อความถึงช่างเมื่อ R3 | REQ-IF-010, REQ-FN-055 |
+| GET /ops/refunds/follow-up | ใหม่ รายการคืนเงิน declined และ unknown ให้ Finance ใช้กุญแจ X-Ops-Token ในโหมด production ไม่มีข้อมูลส่วนบุคคล | REQ-IF-010 (Q-34), REQ-SEC-012 (บัญชี endpoint) |
+| หน้ายกเลิก UI-08-01 และหน้าผล UI-08-02 | แสดง note และ refund_message จากระบบ บรรทัดช่องทางคืนเงินตาม Q-35 | REQ-FN-054, REQ-IF-010 |
+
+test ใหม่: test_AC_08_11_gateway_declines_refund_no_retry_finance_follow_up, test_AC_08_12_cancel_while_en_route_deducts_travel_fee (backend/tests/test_cancel_cr10.py), AC-08-11.test.jsx, AC-08-12.test.jsx และ test ใหม่ใน UI-08-02.test.jsx
+ตารางตรวจ Constraints: ไม่มีข้อใหม่ในไฟล์กลาง endpoint ใหม่เพิ่มในบัญชี endpoint ของ operations.md ใน commit เดียวกัน (REQ-SEC-012)

@@ -2,6 +2,8 @@
 // ยอดคืนมาจาก GET /jobs/{id}/refund-quote (ตาราง BR-01 อยู่หลังบ้านที่เดียว D-00-05) หน้าจอไม่มีตารางยอดของตัวเอง
 // เมื่อยกเลิกไม่ได้ (R3 รอ Q-14, R6, ยกเลิกไปแล้ว) แสดงข้อความที่ระบบส่งมา ไม่มีปุ่มยืนยัน
 // กล่อง "รอ Q-14" (ยอดคืน R3) และ "รอ Q-35" (ช่องทางและระยะเวลาเงินคืน) ใน mockup ไม่สร้าง
+// CR-10 (Q-14, AC-08-12): R3 ยกเลิกได้แล้ว แสดง quote.note (เหตุที่ยอดคืนถูกหัก) ที่ระบบส่งมา
+// CR-10 (Q-35): บอกว่าระยะเวลาเงินเข้าขึ้นกับธนาคารผู้ออกบัตร ไม่บอกจำนวนวัน
 import { useState } from 'react'
 import { statusTh, fmtDateTime } from '../statusNames.js'
 
@@ -58,7 +60,8 @@ export default function CancelBooking({ api, customerId, initialJobId = '', onCa
           {quote.allowed ? (
             <div className="mt-4 rounded-lg border border-teal-200 bg-teal-50 p-4">
               <p className="text-sm text-teal-900">คุณจะได้รับเงินคืน <b data-testid="refund-amount">{quote.refund_amount} บาท</b></p>
-              <p className="mt-1 text-xs text-teal-800">คืนผ่านช่องทางที่ชำระมัดจำ</p>
+              {quote.note && <p className="mt-1 text-sm text-teal-900" data-testid="refund-note">{quote.note}</p>}
+              <p className="mt-1 text-xs text-teal-800">คืนผ่านช่องทางที่ชำระมัดจำ ระยะเวลาที่เงินเข้าบัญชีขึ้นกับธนาคารผู้ออกบัตร</p>
             </div>
           ) : (
             <div role="alert" className="mt-4 rounded-lg border border-orange-300 bg-orange-50 p-4 text-sm text-orange-800">
