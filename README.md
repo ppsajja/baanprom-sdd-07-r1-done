@@ -82,7 +82,10 @@ commit ที่ 3 (ตรวจรับรอบสองและส่งม
 | specs/000-shared/test-run.txt, ac-results rtm gaps tasks | ผลรันล่าสุด T-32 T-33 แถวตรวจรับ | |
 | prompt-log.md | เพิ่ม #79 ถึง #88 | ทุกคำสั่งและการตัดสินของบทนี้ |
 
-ดู diff ของทั้งบท: `git diff HEAD~3 --stat` และของแต่ละ commit: `git show --stat HEAD~2` `HEAD~1` `HEAD`
+ดู diff ของทั้งบท: `git diff uat-plan~1 b5 --stat` และของแต่ละ commit: `git show --stat uat-plan` `uat-round1` `b5`
+
+> แท็ก (เช่น uat-plan, uat-round1, b5) ใช้ได้เมื่อ clone repo นี้ ถ้าสร้างด้วยปุ่ม Use this template บน GitHub จะไม่ได้ประวัติ commit และแท็กมาด้วย
+
 
 ## งานของบทนี้ที่นักศึกษาต้องทำต่อ
 
@@ -117,7 +120,7 @@ git push -u origin main
 ```
 
 `git remote set-url origin` เปลี่ยนปลายทางของ push จาก repo ของผู้สอนเป็น repo ของกลุ่ม (ต้องสร้าง repo เปล่าบน GitHub ไว้ก่อน)
-ถ้าอยากเริ่มจากสภาพก่อนวันตรวจรับ ใช้ `git checkout HEAD~2` หรือสภาพรับแบบมีเงื่อนไข ใช้ `git checkout HEAD~1` แล้วสร้าง branch ของกลุ่มจากจุดนั้น
+ถ้าอยากเริ่มจากสภาพก่อนวันตรวจรับ ใช้ `git checkout uat-plan` หรือสภาพรับแบบมีเงื่อนไข ใช้ `git checkout uat-round1` แล้วสร้าง branch ของกลุ่มจากจุดนั้น
 
 ## ทีม
 
@@ -196,7 +199,7 @@ python load_test.py --base http://127.0.0.1:8000 --users 500 --rounds 3
 - eval: `prompt P-1.1: 20/20 เกณฑ์ผ่าน`
 - uat_replay.py: 13 จาก 13 scenario ผ่าน (docs/acceptance/uat-dryrun-r2.txt)
 - load_test.py: ตัวเลขขึ้นกับเครื่อง บนเครื่องทดสอบ CPU 2 ตัวที่ยิงโหลดจากเครื่องเดียวกัน AC-07-08 ไม่ผ่าน (p95 ราว 7.5 ถึง 8 วินาที) ถ้าเครื่องของนักศึกษาได้ผลต่างออกไป เป็นเรื่องปกติ อ่านส่วน "วิเคราะห์" ใน load-test-r1.md
-- ถ้าเปิด commit ที่ 2 (`git checkout HEAD~1`) จะได้ 104 passed และ 40 passed เพราะยังไม่มี test ของ DEF-01 DEF-02
+- ถ้าเปิด commit ที่ 2 (`git checkout uat-round1`) จะได้ 104 passed และ 40 passed เพราะยังไม่มี test ของ DEF-01 DEF-02
 
 ## สิ่งที่รู้อยู่แล้วว่ายังไม่ใช่ของจริง
 
